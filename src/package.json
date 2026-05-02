@@ -1,0 +1,12 @@
+{
+  "name": "my-app",
+  "version": "1.0.0",
+  "description": "Sample app for JFrog Artifactory CI/CD demo",
+  "main": "src/index.js",
+  "scripts": {
+    "build": "npm pack",
+    "test": "echo 'Tests passed!'"
+  },
+  "author": "Your Name",
+  "license": "MIT"
+}

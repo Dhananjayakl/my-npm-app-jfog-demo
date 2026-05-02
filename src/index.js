@@ -1,0 +1,1 @@
+console.log("Hello from my-app v1.0.0");

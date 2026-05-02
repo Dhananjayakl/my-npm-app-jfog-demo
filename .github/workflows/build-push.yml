@@ -1,0 +1,84 @@
+name: Build & Push to JFrog Artifactory
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build-and-push:
+    name: Build and Publish to Artifactory
+    runs-on: ubuntu-latest
+
+    steps:
+      # ── 1. Checkout Code ──────────────────────────────────────
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # ── 2. Setup Node.js ──────────────────────────────────────
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      # ── 3. Install JFrog CLI ──────────────────────────────────
+      - name: Setup JFrog CLI
+        uses: jfrog/setup-jfrog-cli@v4
+        env:
+          JF_URL: ${{ secrets.JFROG_URL }}
+          JF_ACCESS_TOKEN: ${{ secrets.JFROG_ACCESS_TOKEN }}
+
+      # ── 4. Verify Connection to Artifactory ───────────────────
+      - name: Ping Artifactory
+        run: jf rt ping
+
+      # ── 5. Install Dependencies ───────────────────────────────
+      - name: Install dependencies
+        run: npm install
+
+      # ── 6. Run Tests ──────────────────────────────────────────
+      - name: Run tests
+        run: npm test
+
+      # ── 7. Build (creates .tgz package) ──────────────────────
+      - name: Build package
+        run: npm pack
+
+      # ── 8. Configure npm to use Artifactory ──────────────────
+      - name: Configure npm registry to Artifactory
+        run: |
+          jf npmc \
+            --repo-resolve genrice-local \
+            --repo-deploy genrice-local \
+            --server-id-resolve setup-jfrog-cli-server \
+            --server-id-deploy setup-jfrog-cli-server
+
+      # ── 9. Upload .tgz artifact to Artifactory ────────────────
+      - name: Upload build artifact to Artifactory
+        run: |
+          jf rt upload \
+            "*.tgz" \
+            "genrice-local/" \
+            --build-name="${{ github.repository }}" \
+            --build-number="${{ github.run_number }}" \
+            --insecure-tls
+
+      # ── 10. Publish Build Info ────────────────────────────────
+      - name: Publish Build Info
+        run: |
+          jf rt build-collect-env \
+            "${{ github.repository }}" \
+            "${{ github.run_number }}"
+
+          jf rt build-publish \
+            "${{ github.repository }}" \
+            "${{ github.run_number }}"
+
+      # ── 11. Print Summary ─────────────────────────────────────
+      - name: Print artifact location
+        run: |
+          echo "✅ Artifact pushed to:"
+          echo "${{ secrets.JFROG_URL }}/artifactory/genrice-local/"
