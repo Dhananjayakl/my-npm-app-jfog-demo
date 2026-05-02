@@ -1,5 +1,7 @@
 # my-npm-app-jfog-demo
 
+cloude chat: https://claude.ai/share/27a1ff10-b29f-4374-a64e-2ec9ef6e0d3a
+
 markdown# my-app — JFrog Artifactory CI/CD Pipeline
 
 A simple Node.js project that builds and pushes artifacts to JFrog Artifactory using GitHub Actions.
