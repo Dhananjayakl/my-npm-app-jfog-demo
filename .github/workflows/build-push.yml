@@ -51,8 +51,8 @@ jobs:
       - name: Configure npm registry to Artifactory
         run: |
           jf npmc \
-            --repo-resolve genrice-local \
-            --repo-deploy genrice-local \
+            --repo-resolve generic-local \
+            --repo-deploy generic-local \
             --server-id-resolve setup-jfrog-cli-server \
             --server-id-deploy setup-jfrog-cli-server
 
@@ -61,7 +61,7 @@ jobs:
         run: |
           jf rt upload \
             "*.tgz" \
-            "genrice-local/" \
+            "generic-local/" \
             --build-name="${{ github.repository }}" \
             --build-number="${{ github.run_number }}" \
             --insecure-tls
@@ -81,4 +81,4 @@ jobs:
       - name: Print artifact location
         run: |
           echo "✅ Artifact pushed to:"
-          echo "${{ secrets.JFROG_URL }}/artifactory/genrice-local/"
+          echo "${{ secrets.JFROG_URL }}/artifactory/generic-local/"
